@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+set -Eeuo pipefail;
+
+echo 'Installing layers and system packages for termux:';
+curl -fsSL https://raw.githubusercontent.com/git-rafael/toolbox/master/layers/ops/bin/packagectl \
+| LAYERS='ops ops-data ops-systems' sh;
+
+useradd -m ${USER:-user};

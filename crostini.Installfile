@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+set -Eeuo pipefail;
+
+echo 'Installing layers and system packages for crostini:';
+curl -fsSL https://raw.githubusercontent.com/git-rafael/toolbox/master/layers/ops/bin/packagectl \
+| LAYERS='ops ops-data ops-systems dev dev-data dev-security dev-systems' sh;
+
+packagectl set cros-container-guest-tools-git;

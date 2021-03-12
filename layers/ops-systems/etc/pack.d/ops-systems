@@ -1,0 +1,8 @@
+whois inetutils iputils bind-tools
+traceroute tcpdump nmap
+
+openbsd-netcat socat rsync
+sshpass openssh sshuttle
+oath-toolkit lastpass-cli
+
+aws-cli-v2-bin python-aws-google-auth

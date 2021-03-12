@@ -1,0 +1,50 @@
+#!/usr/bin/env sh
+set -ue;
+
+# Copy and paste the following line on first time installation
+# curl -fsSL https://raw.githubusercontent.com/git-rafael/toolbox/master/layers/ops/bin/envpull | DOTFILES_REPOSIROTY=git-rafael/dotfiles sh
+
+
+readonly TOOLBOX_REPOSITORY=${TOOLBOX_REPOSITORY:-git-rafael/toolbox};
+
+if [ -n "${USING_IMAGE:-}" ]; then
+	export USING_HOME="${USING_HOME:-${HOME}}";
+	export USING_USER="${USING_USER:-$(id -u)}";
+
+	if [ ! -d ${USING_HOME}/.dotfiles ]; then
+		readonly COMMAND="$(mktemp /tmp/envpull-using-XXXXXX)";
+		trap "rm -f ${COMMAND}" EXIT;
+		chmod +x ${COMMAND};
+
+		curl -fsSL -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/${TOOLBOX_REPOSITORY}/master/layers/dev/bin/using -o ${COMMAND};
+
+		${COMMAND} ${USING_IMAGE} <<-COMMAND
+			git clone https://github.com/${DOTFILES_REPOSIROTY}.git ${USING_HOME}/.dotfiles;
+		COMMAND
+	else
+		readonly COMMAND="using";
+
+		${COMMAND} ${USING_IMAGE} <<-COMMAND
+			git -C ${USING_HOME}/.dotfiles reset --hard;
+			git -C ${USING_HOME}/.dotfiles pull;
+		COMMAND
+	fi
+
+	${COMMAND} ${USING_IMAGE} <<-COMMAND
+		stow -d ${USING_HOME}/.dotfiles -t ${USING_HOME} .;
+	COMMAND
+else
+	if ! command -v stow >/dev/null || ! command -v git >/dev/null; then
+		echo "Install 'stow' and 'git' or define USING_IMAGE.";
+		exit 1;
+	fi
+
+	if [ ! -d ${HOME}/.dotfiles ]; then
+		git clone https://github.com/${DOTFILES_REPOSIROTY}.git ${HOME}/.dotfiles;
+	else
+		git -C ${HOME}/.dotfiles reset --hard;
+		git -C ${HOME}/.dotfiles pull;
+	fi
+
+	stow -d ${HOME}/.dotfiles -t ${HOME} .;
+fi

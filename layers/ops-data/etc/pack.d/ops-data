@@ -1,0 +1,3 @@
+sql-workbench
+
+dataops:ipython-sql,pandas,altair,kafka-python,influxdb

@@ -1,0 +1,1 @@
+datadev:python=3.8,jupyterlab/jupyter_http_over_ws,ipython-sql,pandas,altair,kafka-python,influxdb,scikit-learn,pycaret

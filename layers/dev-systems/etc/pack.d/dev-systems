@@ -1,0 +1,7 @@
+docker goss-bin
+kubectl-bin kafkactl
+docker-compose minikube
+
+ansible
+pulumi
+packer terraform@0.12

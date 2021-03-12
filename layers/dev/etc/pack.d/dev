@@ -1,0 +1,10 @@
+git
+git-lfs
+git-crypt
+git-hound@latest
+
+dotnet-sdk
+
+jdk-openjdk maven
+
+visual-studio-code-bin
