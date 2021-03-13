@@ -49,6 +49,33 @@ function pipx_ensure {
     fi
 }
 
+function pipx_install {
+    local packages=$@;
+
+    pipx_ensure;
+    echo -n "> Setting ${packages}...";
+    pipx_exec install ${packages} --force --pip-args='--no-cache-dir';
+    echo ' [OK]';
+}
+
+function pipx_uninstall {
+    local packages=$@;
+    
+    if pipx_check; then
+        echo -n "> Unsetting ${packages}...";
+        pipx_exec uninstall ${packages};
+        echo ' [OK]';
+    else
+        echo '> No package installed';
+    fi
+}
+
+function pipx_update {
+    if pipx_check; then
+        pipx_exec upgrade-all;
+    fi
+}
+
 ###################
 #### miniforge ####
 ###################
@@ -88,7 +115,6 @@ function miniforge_ensure {
 function miniforge_install {
     local packages=$@;
 
-    
     for package in ${packages}; do
         local environment="$(echo ${package} | cut -d':' -f1)";
         local targets="$(echo ${package} | cut -s -d':' -f2)";
@@ -301,10 +327,12 @@ function package_install {
     local so_packages="";
     local brew_packages="";
     local miniforge_packages="";
+    local python_packages="";
     for package in $(echo ${packages}); do
         case ${package} in
             *@*) brew_packages="${brew_packages} ${package}";;
             *:*) miniforge_packages="${miniforge_packages} ${package}";;
+            *#python) python_packages="${python_packages} ${package%%#python}";;
             *) so_packages="${so_packages} ${package}";;
         esac
     done
@@ -320,6 +348,10 @@ function package_install {
     if [ -n "${miniforge_packages}" ]; then
         miniforge_install ${miniforge_packages};
     fi
+
+    if [ -n "${python_packages}" ]; then
+        pipx_install ${python_packages};
+    fi
 }
 
 function package_uninstall {
@@ -328,10 +360,12 @@ function package_uninstall {
     local so_packages="";
     local brew_packages="";
     local miniforge_packages="";
+    local python_packages="";
     for package in $(echo ${packages}); do
         case ${package} in
             *@*) brew_packages="${brew_packages} ${package}";;
             *:*) miniforge_packages="${miniforge_packages} ${package}";;
+            *#python) python_packages="${python_packages} ${package%%#python}";;
             *) so_packages="${so_packages} ${package}";;
         esac
     done
@@ -346,6 +380,10 @@ function package_uninstall {
 
     if [ -n "${miniforge_packages}" ]; then
         miniforge_uninstall ${miniforge_packages};
+    fi
+
+    if [ -n "${python_packages}" ]; then
+        pipx_uninstall ${python_packages};
     fi
 }
 
