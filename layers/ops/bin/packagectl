@@ -405,17 +405,14 @@ function package_pull {
     for layer in $(echo ${layers}); do
         local package_file=${FS_ROOT}/etc/pack.d/${layer};
 
-        if [ ! -f ${package_file} ]; then
-            echo "+ Pulling ${layer}...";
-            curl -fsSL https://github.com/git-rafael/toolbox/tarball/master \
-            | tar -zxvf - -C "${FS_ROOT}" --strip 3 --wildcards "**/layers/${layer}";
-        fi
+        echo "+ Pulling ${layer}...";
+        curl -fsSL https://github.com/git-rafael/toolbox/tarball/master \
+        | tar -zxvf - -C "${FS_ROOT}" --strip 3 --wildcards "**/layers/${layer}";
 
         local packages="";
         while read line; do
             local packages="${packages} ${line}";
         done < ${package_file};
-        rm -f ${package_file};
 
         package_install ${packages};
     done
