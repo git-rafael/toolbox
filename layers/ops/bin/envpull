@@ -2,7 +2,7 @@
 set -ue;
 
 # Copy and paste the following line on first time installation
-# curl -fsSL https://raw.githubusercontent.com/git-rafael/toolbox/master/layers/ops/bin/envpull | DOTFILES_REPOSIROTY=git-rafael/dotfiles sh
+# curl -fsSL https://raw.githubusercontent.com/git-rafael/toolbox/master/layers/ops/bin/envpull | DOTFILES_REPOSITORY=git-rafael/dotfiles sh
 
 
 readonly TOOLBOX_REPOSITORY=${TOOLBOX_REPOSITORY:-git-rafael/toolbox};
@@ -19,7 +19,7 @@ if [ -n "${USING_IMAGE:-}" ]; then
 		curl -fsSL -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/${TOOLBOX_REPOSITORY}/master/layers/dev/bin/using -o ${COMMAND};
 
 		${COMMAND} ${USING_IMAGE} <<-COMMAND
-			git clone https://github.com/${DOTFILES_REPOSIROTY}.git ${USING_HOME}/.dotfiles;
+			git clone https://github.com/${DOTFILES_REPOSITORY}.git ${USING_HOME}/.dotfiles;
 		COMMAND
 	else
 		readonly COMMAND="using";
@@ -40,7 +40,7 @@ else
 	fi
 
 	if [ ! -d ${HOME}/.dotfiles ]; then
-		git clone https://github.com/${DOTFILES_REPOSIROTY}.git ${HOME}/.dotfiles;
+		git clone https://github.com/${DOTFILES_REPOSITORY}.git ${HOME}/.dotfiles;
 	else
 		git -C ${HOME}/.dotfiles reset --hard;
 		git -C ${HOME}/.dotfiles pull;
