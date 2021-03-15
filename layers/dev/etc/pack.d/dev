@@ -3,6 +3,10 @@ git-lfs
 git-crypt
 git-hound@latest
 
+nodejs npm
+
+python python-pip
+
 dotnet-sdk
 
 jdk-openjdk maven
