@@ -1,9 +1,18 @@
 #!/usr/bin/env sh
 set -e;
 
+readonly OS="$(uname -s)";
+
 # Docker installation check
-if ! command -v docker >/dev/null; then
-	curl -fsSL https://get.docker.com | sh;
+readonly COMMAND="${DOCKER_COMMAND:-docker}";
+if ! command -v "${COMMAND}" >/dev/null; then
+	if [ "${OS}" = "Linux" ]; then
+		curl -fsSL https://get.docker.com | sh;
+		exit 1;
+	else
+		echo 'Docker Engine not found.';
+		exit 1;
+	fi
 fi
 
 # Image and arguments
@@ -56,17 +65,9 @@ else
 fi
 
 # Volumes, groups and mappings
-readonly OS="$(uname -s)";
-if [ "${OS}" = "Darwin" ]; then
-	readonly USER_ID="";
-	readonly USER_HOME="${USING_HOME:-HOME}";
-
-	readonly USER_PARAMETER="";
-	readonly GROUPS_PARAMETERS="";
-	readonly VOLUMES_PARAMETERS="-v $(pwd):$(pwd) -v /tmp/.X11-unix:/tmp/.X11-unix";
-else
+if [ "${OS}" = "Linux" ]; then
 	if ! $(cat /etc/group | grep "docker:.*${USER}" >/dev/null) && ! [ $(id -u) = 0 ]; then
-		readonly SUDO='sudo';
+		readonly PRE_COMMAND='sudo';
 	fi
 
 	readonly USER_ID=$(id -u ${USING_USER} 2>/dev/null || id -u -n ${USING_USER} 2>/dev/null || echo ${USING_USER});
@@ -75,6 +76,22 @@ else
 	readonly USER_PARAMETER="--user=${USER_ID}";
 	readonly GROUPS_PARAMETERS="--group-add $(getent group docker|cut -d: -f3) --group-add $( (getent group sudo||getent group wheel)|cut -d: -f3)";
 	readonly VOLUMES_PARAMETERS="-v $(pwd):$(pwd) -v /root:/root -v /:/host -v /etc/passwd:/etc/passwd -v /etc/shadow:/etc/shadow -v /etc/group:/etc/group -v /etc/sudoers:/etc/sudoers -v /tmp/.X11-unix:/tmp/.X11-unix";
+elif [ "${OS}" = "Darwin" ]; then
+	readonly USER_ID="";
+	readonly USER_HOME="${USING_HOME:-HOME}";
+
+	readonly USER_PARAMETER="";
+	readonly GROUPS_PARAMETERS="";
+	readonly VOLUMES_PARAMETERS="-v $(pwd):$(pwd) -v /tmp/.X11-unix:/tmp/.X11-unix";
+else
+	readonly PRE_COMMAND='winpty';
+
+	readonly USER_ID="";
+	readonly USER_HOME="${USING_HOME:-HOME}";
+
+	readonly USER_PARAMETER="";
+	readonly GROUPS_PARAMETERS="";
+	readonly VOLUMES_PARAMETERS="";
 fi
 
 if [ -d ${USER_HOME} ] || [ -n "${USING_HOME}" ]; then
@@ -87,13 +104,13 @@ fi
 
 # Staring up
 readonly PRIVILEGE_FLAGS="--privileged --network=host --ipc=host --uts=host --userns=host --pid=host --cap-add=ALL";
-readonly ENGINE_PARAMETERS="run --rm ${USER_PARAMETER} -w $(pwd) -e HOME=${USER_HOME} -e DISPLAY=${DISPLAY} ${ENV_FILE} ${PRIVILEGE_FLAGS} ${GROUPS_PARAMETERS} ${VOLUMES_PARAMETERS} ${HOME_VOLUME_PARAMETER} ${TTY_PARAMETERS} ${DOCKER_API_PARAMETERS} ${IMAGE}";
+readonly ENGINE_PARAMETERS="run --rm ${USER_PARAMETER} -w /$(pwd) -e HOME=${USER_HOME} -e DISPLAY=${DISPLAY} ${ENV_FILE} ${PRIVILEGE_FLAGS} ${GROUPS_PARAMETERS} ${VOLUMES_PARAMETERS} ${HOME_VOLUME_PARAMETER} ${TTY_PARAMETERS} ${DOCKER_API_PARAMETERS} ${IMAGE}";
 
 if [ -t 0 ]; then
 	shift ${ARGUMENTS_INDEX};
-	exec ${SUDO} docker ${ENGINE_PARAMETERS} "${@}";
+	exec ${PRE_COMMAND} "${COMMAND}" ${ENGINE_PARAMETERS} "${@}";
 else
 	while read PARAMETERS_LINE; do
-		${SUDO} docker ${ENGINE_PARAMETERS} ${PARAMETERS_LINE};
+		${PRE_COMMAND} "${COMMAND}" ${ENGINE_PARAMETERS} ${PARAMETERS_LINE};
 	done
 fi
