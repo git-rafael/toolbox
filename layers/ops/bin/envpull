@@ -19,14 +19,14 @@ if [ -n "${USING_IMAGE:-}" ]; then
 		curl -fsSL -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/${TOOLBOX_REPOSITORY}/master/layers/dev/bin/using -o ${COMMAND};
 
 		${COMMAND} ${USING_IMAGE} <<-COMMAND
-			git clone https://github.com/${DOTFILES_REPOSITORY}.git ${USING_HOME}/.dotfiles;
+			git clone -q https://github.com/${DOTFILES_REPOSITORY}.git ${USING_HOME}/.dotfiles;
 		COMMAND
 	else
 		readonly COMMAND="using";
 
 		${COMMAND} ${USING_IMAGE} <<-COMMAND
-			git -C ${USING_HOME}/.dotfiles reset --hard;
-			git -C ${USING_HOME}/.dotfiles pull;
+			git -C ${USING_HOME}/.dotfiles reset -q --hard;
+			git -C ${USING_HOME}/.dotfiles pull -q;
 		COMMAND
 	fi
 
@@ -40,10 +40,10 @@ else
 	fi
 
 	if [ ! -d ${HOME}/.dotfiles ]; then
-		git clone https://github.com/${DOTFILES_REPOSITORY}.git ${HOME}/.dotfiles;
+		git clone -q https://github.com/${DOTFILES_REPOSITORY}.git ${HOME}/.dotfiles;
 	else
-		git -C ${HOME}/.dotfiles reset --hard;
-		git -C ${HOME}/.dotfiles pull;
+		git -C ${HOME}/.dotfiles reset -q --hard;
+		git -C ${HOME}/.dotfiles pull -q;
 	fi
 
 	stow -d ${HOME}/.dotfiles -t ${HOME} .;
