@@ -6,3 +6,4 @@ sshpass openssh sshuttle
 oath-toolkit lastpass-cli
 
 aws-cli aws-google-auth#python
+azure-cli
