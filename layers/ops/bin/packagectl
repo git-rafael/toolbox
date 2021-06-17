@@ -260,7 +260,7 @@ function aurman_check {
 }
 
 function aurman_setup {
-    pacman -Syu --noconfirm base-devel man &> ${LOG_FILE};
+    pacman -Syu --noconfirm base-devel python-setuptools man &> ${LOG_FILE};
 
     id ${BUILD_USER} &> /dev/null || useradd -d "${BUILD_PATH}" -rm ${BUILD_USER};
     sed -i "s/# %wheel ALL=(ALL) NOPASSWD: ALL/%${BUILD_USER} ALL=(ALL) NOPASSWD: ALL/g" /etc/sudoers;
