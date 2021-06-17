@@ -3,12 +3,13 @@ git-lfs
 git-crypt
 git-hound@latest
 
-nodejs npm
+nodejs npm nvm
 
 python python-pip
 
 dotnet-sdk
+aspnet-runtime aspnet-runtime-3.1
 
 jdk-openjdk maven
 
-visual-studio-code-bin
+visual-studio-code-bin chromium
